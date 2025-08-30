@@ -1,5 +1,5 @@
 //
-//  AsyncEventStream+Future+GraphQLResult.swift
+//  AsyncSequence+pipe.swift
 //  Pioneer
 //
 //  Created by d-exclaimation on 3:38 PM.

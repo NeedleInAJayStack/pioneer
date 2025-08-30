@@ -1,5 +1,5 @@
 //
-//  GraphitiAsyncEventStreamTests.swift
+//  GraphitiTests.swift
 //  Pioneer
 //
 //  Created by d-exclaimation on 7:17 PM.
