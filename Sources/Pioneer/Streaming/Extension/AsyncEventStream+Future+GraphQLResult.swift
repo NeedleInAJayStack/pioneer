@@ -6,32 +6,9 @@
 //
 
 import NIOCore
-import class GraphQL.ConcurrentEventStream
-import class GraphQL.Future
 import struct GraphQL.GraphQLResult
-import class GraphQL.SubscriptionEventStream
 
-/// AsyncSequence for GraphQL Result
-public typealias AsyncGraphQLSequence<Sequence: AsyncSequence> = AsyncEventStream<Future<GraphQL.GraphQLResult>, Sequence>
-    where Sequence.Element == Future<GraphQL.GraphQLResult>
-
-/// AsyncStream for GraphQL Result
-public typealias AsyncGraphQLStream = AsyncGraphQLSequence<AsyncThrowingStream<Future<GraphQL.GraphQLResult>, Error>>
-
-public extension SubscriptionEventStream {
-    /// Get the AsyncStream from this event stream regardless of its sequence
-    func asyncStream() -> AsyncThrowingStream<Future<GraphQL.GraphQLResult>, Error>? {
-        if let asyncStream = self as? AsyncGraphQLStream {
-            return asyncStream.sequence
-        }
-        if let concurrentStream = self as? ConcurrentEventStream<Future<GraphQL.GraphQLResult>> {
-            return concurrentStream.stream
-        }
-        return nil
-    }
-}
-
-public extension AsyncSequence where Element == Future<GraphQL.GraphQLResult> {
+public extension AsyncSequence where Element == GraphQL.GraphQLResult {
     /// Pipe the GraphQLResult AsyncSequence into an actor.
     ///
     /// - Parameters:
@@ -48,10 +25,8 @@ public extension AsyncSequence where Element == Future<GraphQL.GraphQLResult> {
     ) -> Task<Void, Error> {
         Task.init {
             do {
-                for try await elem in self {
+                for try await result in self {
                     guard !Task.isCancelled else { return }
-                    let fut: Future<GraphQL.GraphQLResult> = elem
-                    let result = try await fut.get()
                     await next(sink, result)
                 }
                 await complete(sink)
